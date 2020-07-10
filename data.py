@@ -1,5 +1,9 @@
+"""
+Contains data about the current US tax & welfare system.
+"""
 from filing_status import *
-from expenditures import *
+from bracket import *
+from tax_unit import TaxUnit
 # Assumes use of standard deduction in 2020.
 MAX_INCOME = pow(10, 12)  # 1 trillion dollars
 current_rates = [0, .12, .22, .24, .32, .35, .37]
@@ -35,8 +39,30 @@ child_EITC_one = Bracket(0, 10460, .34)
 child_EITC_two = Bracket(child_EITC_one.end, 19184, 0)
 child_EITC_three = Bracket(child_EITC_two.end, 41439, .1598)
 child_EITC = [child_EITC_one, child_EITC_two, child_EITC_three]
+# Eventually, the EITC for multiple children will be added in here.
+EITC = [adult_EITC, child_EITC]
 
 # Assumes individual or HoH status. Else, $200k -> $400k
 CTC_one = Bracket(0, 200000, 0)
 CTC_two = Bracket(CTC_one.end, 240000, -.05)
 CTC = [CTC_one, CTC_two]
+
+
+def get_EITC(tax_unit: TaxUnit):
+    total = 0
+    for j in range(tax_unit.num_kids+1):
+        total += get_taxfare(tax_unit.income, EITC[j])
+    return [total, 0]
+
+
+def get_CTC(tax_unit: TaxUnit):
+    benefit = tax_unit.num_kids*get_taxfare(CTC, tax_unit.income)
+    refundable = 0
+    if benefit <= tax_unit.base_income_taxes:
+        non_refundable = benefit
+    else:
+        non_refundable = tax_unit.base_income_taxes
+        refundable = min(tax_unit.num_kids*1400, benefit-non_refundable)
+        refundable = min(refundable, .15*(tax_unit.income-2500))
+        refundable = max(refundable, 0)
+    return [refundable, non_refundable]
