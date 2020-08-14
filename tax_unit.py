@@ -1,4 +1,4 @@
-from data import *
+from filing_status import *
 
 
 class TaxUnit:
@@ -6,4 +6,4 @@ class TaxUnit:
         self.income = income  # you could prob add deductions here if u want
         self.num_kids = num_kids
         self.filing_status = filing_status
-        self.base_income_taxes = get_taxfare(brackets[filing_status], income)
+        self.base_income_taxes = None
