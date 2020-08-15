@@ -53,19 +53,19 @@ CTC = [CTC_one, CTC_two]
 def get_EITC(tax_unit: TaxUnit):
     total = 0
     for j in range(tax_unit.num_kids+1):
-        total += get_taxfare(tax_unit.income, EITC[j])
+        total += get_taxfare(tax_unit.pre_tax_market_income, EITC[j])
     return [total, 0]
 
 
 # Given a TaxUnit, returns that units' CTC benefit.
 def get_CTC(tax_unit: TaxUnit):
-    benefit = tax_unit.num_kids*get_taxfare(tax_unit.income, CTC)
+    benefit = tax_unit.num_kids*get_taxfare(tax_unit.pre_tax_market_income, CTC)
     refundable = 0
     if benefit <= tax_unit.base_income_taxes:
         non_refundable = benefit
     else:
         non_refundable = tax_unit.base_income_taxes
         refundable = min(tax_unit.num_kids*1400, benefit-non_refundable)
-        refundable = min(refundable, .15*(tax_unit.income-2500))
+        refundable = min(refundable, .15 * (tax_unit.pre_tax_market_income - 2500))
         refundable = max(refundable, 0)
     return [refundable, non_refundable]

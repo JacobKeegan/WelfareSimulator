@@ -6,15 +6,14 @@ from filing_status import *
 from total_benefit import *
 
 tax_credit_functions = [get_EITC, get_CTC]
-tax_unit_to_benefits = {}
-tax_unit_to_taxes = {}
 
 
-# Fills a dictionary with data mapping TaxUnits to their benefits and taxes.
-def generate_data(max_income, max_kids):
+# Fills and returns a dictionary with data mapping TaxUnits to their benefits and taxes.
+def generate_data(max_income: int, max_kids: int, step: int):
+    tax_unit_to_benefits = {}
     curr_unit: TaxUnit
     curr_benefit: TotalBenefit
-    for curr_income in range(max_income+1):
+    for curr_income in range(0, max_income, step):
         for num_kids in range(max_kids+1):
             for filing_status in FilingStatus:
                 curr_unit = TaxUnit(curr_income, num_kids, filing_status)
@@ -27,5 +26,5 @@ def generate_data(max_income, max_kids):
                     non_refundable += result[1]
                 curr_benefit = TotalBenefit(refundable, non_refundable, 0)
                 tax_unit_to_benefits[curr_unit] = curr_benefit
+    return tax_unit_to_benefits
 # TODO: Add in code for what a UCA and UBI would be. Can then have it auto-generated compared to norm
-# (quicker algorithm for this? Start at max benefit and go down?)
