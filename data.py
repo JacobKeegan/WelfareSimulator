@@ -5,7 +5,7 @@ from filing_status import *
 from bracket import *
 from tax_unit import TaxUnit
 # Assumes use of standard deduction in 2020.
-MAX_INCOME = pow(10, 12)  # 1 trillion dollars
+MAX_INCOME = pow(10, 11)  # 100 billion dollars
 current_rates = [0, .12, .22, .24, .32, .35, .37]
 single = [0, 12401, 39476, 84201, 160726, 204101, 306176, MAX_INCOME]
 head_of_household = [0, 18650, 52850]
@@ -29,28 +29,23 @@ for i in range(current_rates.__len__()):
     brackets[FilingStatus.MARRIED].append(curr_bracket)
 
 # Data for welfare formulas.
-adult_EITC_one = Bracket(0, 6978, .0765)
-adult_EITC_two = Bracket(adult_EITC_one.end, 8723, 0)
-adult_EITC_three = Bracket(adult_EITC_two.end, 15701, -.0765)
-adult_EITC = [adult_EITC_one, adult_EITC_two, adult_EITC_three]
-# TODO: EITC_married_phase_out_rate = [1]
-child_EITC_one = Bracket(0, 10460, .34)
-child_EITC_two = Bracket(child_EITC_one.end, 19184, 0)
-child_EITC_three = Bracket(child_EITC_two.end, 41439, -.1598)
-child_EITC = [child_EITC_one, child_EITC_two, child_EITC_three]
-# TODO: Eventually, the EITC for multiple children will be added in here.
-EITC = [adult_EITC, child_EITC]
+c = 10540
+c2 = 14800
+adult_EITC = make_brackets([0, 2*c/3, 5*c/6, MAX_INCOME], [.0765, 0, -.0765])
+# TODO: EITC_married_phase_out_change = [1]
+one_child_EITC = make_brackets([0, c, 11*c/6, MAX_INCOME], [.34, 0, -.1598])
+two_child_EITC = make_brackets([0, c2, 11*c/6, MAX_INCOME], [.4, 0, -.2106])
+three_child_EITC = make_brackets([0, c2, 11*c/6, MAX_INCOME], [.45, 0, -.2106])
 
-# Assumes individual or HoH status. Else, $200k -> $400k
-CTC_one = Bracket(0, 200000, 0)
-CTC_two = Bracket(CTC_one.end, 240000, -.05)
-CTC = [CTC_one, CTC_two]
+EITC = [adult_EITC, one_child_EITC, two_child_EITC, three_child_EITC]
 
+# TODO: Assumes individual or HoH status. Else, $200k -> $400k
+CTC = make_brackets([0, 200000, MAX_INCOME], [0, -.05])
 
 # Given a TaxUnit, returns that units' EITC benefit.
 def get_EITC(tax_unit: TaxUnit):
-    return [get_taxfare(tax_unit.pre_tax_market_income,
-                        EITC[tax_unit.num_kids]), 0]
+    return [max(0, get_taxfare(tax_unit.pre_tax_market_income,
+                        EITC[tax_unit.num_kids])), 0]
 
 
 # Given a TaxUnit, returns that units' CTC benefit.

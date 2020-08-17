@@ -7,6 +7,19 @@ from collections import namedtuple
 Bracket = namedtuple("Bracket", "start, end, rate")
 
 
+# Takes in a list of change points (where a bracket changes) and a list of rates, and returns a list of brackets.
+# Removes having to duplicate the end of one brackets and the start of another.
+def make_brackets(change_points: list, rates: list):
+    if len(change_points) < 2:
+        raise Exception("Error! Number of change points for a bracket must be >= 2.")
+    if len(change_points)-len(rates) != 1:
+        raise Exception("Error! There must be exactly one more change point than there are rates.")
+    brackets = []
+    for i in range(len(rates)):
+        brackets.append(Bracket(change_points[i], change_points[i+1], rates[i]))
+    return brackets
+
+
 # Takes in an income and a tax or welfare benefit. Returns the size of the tax or welfare benefit.
 # Taxes and welfare benefits are composed of a list of Brackets.
 def get_taxfare(income, taxfare: list):
