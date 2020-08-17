@@ -3,10 +3,11 @@ from graphing import graph_data
 
 
 def main():
-    max_income = 400000
+    max_income = 250000
     step = 10
-    data = generate_data(max_income, 1, step)
-    graph_data(max_income, data, step)
+    max_num_kids = 1
+    data = generate_data(max_income, max_num_kids, step)
+    graph_data(max_income, data, step, max_num_kids)
 
 
 if __name__ == "__main__":

@@ -34,11 +34,9 @@ adult_EITC_two = Bracket(adult_EITC_one.end, 8723, 0)
 adult_EITC_three = Bracket(adult_EITC_two.end, 15701, -.0765)
 adult_EITC = [adult_EITC_one, adult_EITC_two, adult_EITC_three]
 # TODO: EITC_married_phase_out_rate = [1]
-# Uses the benefit for 1 child, but applied to every child.
-# Assumes individual or HoH status. Else would change phase-out.
 child_EITC_one = Bracket(0, 10460, .34)
 child_EITC_two = Bracket(child_EITC_one.end, 19184, 0)
-child_EITC_three = Bracket(child_EITC_two.end, 41439, .1598)
+child_EITC_three = Bracket(child_EITC_two.end, 41439, -.1598)
 child_EITC = [child_EITC_one, child_EITC_two, child_EITC_three]
 # TODO: Eventually, the EITC for multiple children will be added in here.
 EITC = [adult_EITC, child_EITC]
@@ -51,15 +49,16 @@ CTC = [CTC_one, CTC_two]
 
 # Given a TaxUnit, returns that units' EITC benefit.
 def get_EITC(tax_unit: TaxUnit):
-    total = 0
-    for j in range(tax_unit.num_kids+1):
-        total += get_taxfare(tax_unit.pre_tax_market_income, EITC[j])
-    return [total, 0]
+    return [get_taxfare(tax_unit.pre_tax_market_income,
+                        EITC[tax_unit.num_kids]), 0]
 
 
 # Given a TaxUnit, returns that units' CTC benefit.
 def get_CTC(tax_unit: TaxUnit):
-    benefit = tax_unit.num_kids*get_taxfare(tax_unit.pre_tax_market_income, CTC)
+    if tax_unit.num_kids == 0:
+        return [0, 0]
+    starting_benefit = 2000
+    benefit = starting_benefit + tax_unit.num_kids*get_taxfare(tax_unit.pre_tax_market_income, CTC)
     refundable = 0
     if benefit <= tax_unit.base_income_taxes:
         non_refundable = benefit
