@@ -1,6 +1,7 @@
 """
 Contains functions to calculate taxes and welfare benefits owed.
 """
+
 from data import *
 from filing_status import *
 from total_benefit import *
@@ -9,8 +10,8 @@ tax_credit_functions = [get_EITC, get_CTC]
 
 
 # Fills and returns a dictionary with data mapping TaxUnits to their benefits and taxes.
-def generate_data(max_income: int, max_kids: int, step: int):
-    tax_unit_to_benefits = {}
+def generate_data(max_income: int, max_kids: int, step: int) -> Dict[TaxUnit, TotalBenefit]:
+    tax_unit_to_benefits: Dict[TaxUnit, TotalBenefit] = {}
     curr_unit: TaxUnit
     curr_benefit: TotalBenefit
     for curr_income in range(0, max_income, step):
